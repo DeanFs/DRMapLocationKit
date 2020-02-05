@@ -135,7 +135,7 @@ typedef struct {
 /// 创建路径规划线条视图
 /// 在MAMapView的mapView:viewForOverlay:代理方法中使用
 /// @param overlay 代理中的参数
-- (MAOverlayView *)routLineViewWithForOverlay:(id<MAOverlay>)overlay;
+- (MAPolylineRenderer *)routLineViewWithForOverlay:(id<MAOverlay>)overlay;
 
 #pragma mark - 外观定制
 /// 设置路径规划线条颜色

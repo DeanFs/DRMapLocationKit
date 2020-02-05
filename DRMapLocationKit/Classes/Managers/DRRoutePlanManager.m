@@ -295,15 +295,15 @@
 /// 创建路径规划线条视图
 /// 在BMKMapView的mapView:viewForOverlay:代理方法中使用
 /// @param overlay 代理中的参数
-- (MAOverlayView*)routLineViewWithForOverlay:(id<MAOverlay>)overlay {
+- (MAPolylineRenderer *)routLineViewWithForOverlay:(id<MAOverlay>)overlay {
     if ([overlay isKindOfClass:[DRPolyline class]]) {
         DRPolyline *polyLine = (DRPolyline *)overlay;
         if (polyLine.forRoutePlan) {
-            MAPolylineView *polylineView = [[MAPolylineView alloc] initWithOverlay:polyLine];
-            polylineView.fillColor = self.lineColorMap[@(polyLine.lineType)];
-            polylineView.strokeColor = self.lineColorMap[@(polyLine.lineType)];
-            polylineView.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;
-            return polylineView;
+            MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithOverlay:polyLine];
+            polylineRenderer.fillColor = self.lineColorMap[@(polyLine.lineType)];
+            polylineRenderer.strokeColor = self.lineColorMap[@(polyLine.lineType)];
+            polylineRenderer.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;
+            return polylineRenderer;
         }
     }
     return nil;
