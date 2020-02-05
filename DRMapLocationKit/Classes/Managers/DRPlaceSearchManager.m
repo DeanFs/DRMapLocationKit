@@ -23,7 +23,7 @@ static DRPlaceSearchManager *static_manager;
 @property (nonatomic, assign) NSInteger pageIndex;
 @property (nonatomic, copy) NSString *searchingCity;
 @property (nonatomic, strong) NSMutableArray<DRLocationPOIModel *> *poiList;
-@property (assign, nonatomic) CLLocation *reGeocodeLocation;
+@property (strong, nonatomic) CLLocation *reGeocodeLocation;
 @property (copy, nonatomic) void(^onReGeocodeSearchDoneBlock)(DRLocationModel *locationModel, BOOL success, NSString *message);
 
 @end
@@ -80,6 +80,7 @@ static DRPlaceSearchManager *static_manager;
                                                                   longitude:self.location.coordinate.longitude];
     }
     keywordsSearchRequest.keywords = self.currentSearchText;
+    keywordsSearchRequest.requireExtension = YES;
     
     [self.searcher AMapPOIKeywordsSearch:keywordsSearchRequest];
 }
@@ -88,6 +89,7 @@ static DRPlaceSearchManager *static_manager;
     CLLocationCoordinate2D coordinate = self.reGeocodeLocation.coordinate;
     AMapReGeocodeSearchRequest *request = [[AMapReGeocodeSearchRequest alloc] init];
     request.location = [AMapGeoPoint locationWithLatitude:coordinate.latitude longitude:coordinate.longitude];
+    request.requireExtension = YES;
     request.poitype = @"010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120000|130000|140000|150000|160000|170000|180000|190000|200000|220000|970000|990000";
     
     [self.searcher AMapReGoecodeSearch:request];
