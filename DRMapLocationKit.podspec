@@ -21,16 +21,27 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/Dean_F/DRMapLocationKit'
+  s.homepage         = 'https://github.com/DeanFs/DRMapLocationKit'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Dean_F' => '247159603@qq.com' }
-  s.source           = { :git => 'https://github.com/Dean_F/DRMapLocationKit.git', :tag => s.version.to_s }
+  s.author           = { 'Dean_F' => 'stone.feng1990@gmail.com' }
+  s.source           = { :git => 'https://github.com/DeanFs/DRMapLocationKit.git', :tag => s.version.to_s }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.ios.deployment_target = '8.0'
 
-  s.source_files = 'DRMapLocationKit/Classes/**/*'
+  s.resource = 'DRMapLocationKit/Assets/*', 'DRMapLocationKit/Classes/**/*.xib'
+  
+  s.source_files = 'DRMapLocationKit/Classes/*.{h,m}'
+  
+  s.subspec 'Managers' do |ss|
+      ss.source_files = 'DRMapLocationKit/Classes/Managers/*.{h,m}'
+      ss.dependency 'DRMapLocationKit/Models'
+  end
+  
+  s.subspec 'Models' do |ss|
+      ss.source_files = 'DRMapLocationKit/Classes/Models/*.{h,m}'
+  end
   
   # s.resource_bundles = {
   #   'DRMapLocationKit' => ['DRMapLocationKit/Assets/*.png']
@@ -39,4 +50,12 @@ TODO: Add long description of the pod here.
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'AFNetworking', '~> 2.3'
+  
+  s.dependency 'AMap2DMap'
+  s.dependency 'AMapSearch'
+  s.dependency 'AMapLocation'
+  s.dependency 'MJExtension'
+  s.dependency 'DRMacroDefines'
+  s.dependency 'HexColors', '4.0.0'
+  
 end
