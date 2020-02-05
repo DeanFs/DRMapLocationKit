@@ -12,6 +12,8 @@
 #import <AMapLocationKit/AMapLocationKit.h>
 #import <AMapSearchKit/AMapSearchKit.h>
 #import <MJExtension/MJExtension.h>
+#import <DRMacroDefines/DRMacroDefines.h>
+#import "DRPlaceSearchManager.h"
 
 #define kLocationMessageCacheKey @"LocationMessageCacheKey"
 
@@ -201,6 +203,19 @@
 }
 
 #pragma mark - AMapSearchDelegate
+/**
+ * @brief 当请求发生错误时，会调用代理的此方法.
+ * @param request 发生错误的请求.
+ * @param error   返回的错误.
+ */
+- (void)AMapSearchRequest:(id)request didFailWithError:(NSError *)error {
+    if ([self.delegate respondsToSelector:@selector(onUpdateLocationDone:location:)]) {
+        [self.delegate onUpdateLocationDone:self
+                                   location:self.locationModel];
+    }
+    kDR_LOG(@"逆地址编码失败，未获取到定位点位置和POI信息：%@", [DRPlaceSearchManager errorInfoMapping][@(error.code)]);
+}
+
 /**
  * @brief 逆地理编码查询回调函数
  * @param request  发起的请求，具体字段参考 AMapReGeocodeSearchRequest 。

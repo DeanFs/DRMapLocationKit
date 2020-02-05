@@ -28,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 加载更多
 - (void)loadMore;
 
+/// 高德SDK错误映射表，key为errorCode
++ (NSDictionary *)errorInfoMapping;
+
 @end
 
 NS_ASSUME_NONNULL_END
