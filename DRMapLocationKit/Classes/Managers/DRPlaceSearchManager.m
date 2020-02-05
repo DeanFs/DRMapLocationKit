@@ -11,7 +11,7 @@
 #import <DRMacroDefines/DRMacroDefines.h>
 
 #define kPageSize 20
-
+static DRPlaceSearchManager *static_manager;
 @interface DRPlaceSearchManager () <AMapSearchDelegate>
 
 @property (nonatomic, copy) NSString *currentCity;
@@ -23,6 +23,8 @@
 @property (nonatomic, assign) NSInteger pageIndex;
 @property (nonatomic, copy) NSString *searchingCity;
 @property (nonatomic, strong) NSMutableArray<DRLocationPOIModel *> *poiList;
+@property (assign, nonatomic) CLLocation *reGeocodeLocation;
+@property (copy, nonatomic) void(^onReGeocodeSearchDoneBlock)(DRLocationModel *locationModel, BOOL success, NSString *message);
 
 @end
 
@@ -31,7 +33,7 @@
 /// 实例化查询器
 /// @param currentCity 当前城市，可以传空
 /// @param completeBlock 查询结果回调
-+ (instancetype)searchManagerWithCurrentCity:(nullable NSString *)currentCity
++ (instancetype)searchManagerWithCurrentCity:(NSString *)currentCity
                                     location:(CLLocation *)location
                                completeBlock:(void(^)(NSArray<DRLocationPOIModel *> *searchResult, BOOL haveMoreData, BOOL success, NSString *message))completeBlock {
     DRPlaceSearchManager *manager = [DRPlaceSearchManager new];
@@ -39,6 +41,16 @@
     manager.location = location;
     manager.onSearchDoneBlock = completeBlock;
     return manager;
+}
+
++ (void)searchReGeocodeWithLocation:(CLLocation *)location
+                      completeBlock:(void(^)(DRLocationModel *locationModel, BOOL success, NSString *message))completeBlock {
+    if (static_manager == nil) {
+        static_manager = [DRPlaceSearchManager new];
+    }
+    static_manager.reGeocodeLocation = location;
+    static_manager.onReGeocodeSearchDoneBlock = completeBlock;
+    [static_manager sendReverseGeoCodeSearchRequest];
 }
 
 - (void)searchWithPlace:(NSString *)place {
@@ -72,6 +84,15 @@
     [self.searcher AMapPOIKeywordsSearch:keywordsSearchRequest];
 }
 
+- (void)sendReverseGeoCodeSearchRequest {
+    CLLocationCoordinate2D coordinate = self.reGeocodeLocation.coordinate;
+    AMapReGeocodeSearchRequest *request = [[AMapReGeocodeSearchRequest alloc] init];
+    request.location = [AMapGeoPoint locationWithLatitude:coordinate.latitude longitude:coordinate.longitude];
+    request.poitype = @"010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120000|130000|140000|150000|160000|170000|180000|190000|200000|220000|970000|990000";
+    
+    [self.searcher AMapReGoecodeSearch:request];
+}
+
 #pragma mark - AMapSearchDelegate
 /**
  * @brief 当请求发生错误时，会调用代理的此方法.
@@ -80,6 +101,9 @@
  */
 - (void)AMapSearchRequest:(id)request didFailWithError:(NSError *)error {
     kDR_SAFE_BLOCK(self.onSearchDoneBlock, nil, NO, NO, [DRPlaceSearchManager errorInfoMapping][@(error.code)]);
+    kDR_SAFE_BLOCK(self.onReGeocodeSearchDoneBlock, nil, NO, [DRPlaceSearchManager errorInfoMapping][@(error.code)]);
+    static_manager.onReGeocodeSearchDoneBlock = nil;
+    static_manager = nil;
 }
 
 /**
@@ -114,6 +138,35 @@
     } else {
         kDR_SAFE_BLOCK(self.onSearchDoneBlock, nil, NO, NO, @"没有找到检索结果");
     }
+}
+
+/**
+ * @brief 逆地理编码查询回调函数
+ * @param request  发起的请求，具体字段参考 AMapReGeocodeSearchRequest 。
+ * @param response 响应结果，具体字段参考 AMapReGeocodeSearchResponse 。
+ */
+- (void)onReGeocodeSearchDone:(AMapReGeocodeSearchRequest *)request response:(AMapReGeocodeSearchResponse *)response {
+    if (response != nil) {
+        NSMutableArray *poiList = [NSMutableArray array];
+        for (AMapPOI *poi in response.regeocode.pois) {
+            [poiList addObject:[DRLocationPOIModel modelWithAMapPOIModel:poi
+                                                                 country:response.regeocode.addressComponent.country]];
+        }
+        DRLocationModel *locationModel = [[DRLocationModel alloc] init];
+        locationModel.location = self.reGeocodeLocation;
+        locationModel.country = response.regeocode.addressComponent.country;
+        locationModel.province = response.regeocode.addressComponent.province;
+        locationModel.city = response.regeocode.addressComponent.city;
+        locationModel.area = response.regeocode.addressComponent.district;
+        locationModel.street = response.regeocode.addressComponent.township;
+        locationModel.address = response.regeocode.formattedAddress;
+        locationModel.poiList = poiList;
+        kDR_SAFE_BLOCK(self.onReGeocodeSearchDoneBlock, locationModel, YES, nil);
+    } else {
+        kDR_SAFE_BLOCK(self.onReGeocodeSearchDoneBlock, nil, NO, @"未知错误");
+    }
+    static_manager.onReGeocodeSearchDoneBlock = nil;
+    static_manager = nil;
 }
 
 #pragma mark - lazy load
@@ -189,7 +242,7 @@
 #pragma mark - lifecycle
 - (void)dealloc {
     kDR_LOG(@"%@ dealloc", NSStringFromClass([self class]));
-    self.searcher.delegate = nil;
+    _searcher.delegate = nil;
 }
 
 @end

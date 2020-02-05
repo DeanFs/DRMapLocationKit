@@ -14,8 +14,6 @@
 #import "DRPlaceSearchManager.h"
 #import "DRRoutePlanManager.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface DRMapLoctionKit : NSObject
 
 /// 初始化地图，定位服务
@@ -25,5 +23,3 @@ NS_ASSUME_NONNULL_BEGIN
                           otherParams:(NSDictionary *)otherParams;
 
 @end
-
-NS_ASSUME_NONNULL_END

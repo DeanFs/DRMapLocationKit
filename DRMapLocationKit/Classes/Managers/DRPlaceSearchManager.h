@@ -7,9 +7,7 @@
 //
 
 #import <CoreLocation/CoreLocation.h>
-#import "DRLocationPOIModel.h"
-
-NS_ASSUME_NONNULL_BEGIN
+#import "DRLocationModel.h"
 
 /// 地名位置查询器，查询结果为地名附近的POI列表
 @interface DRPlaceSearchManager : NSObject
@@ -18,9 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param currentCity 当前城市，可以传空
 /// @param location 当前定位坐标，可以传空
 /// @param completeBlock 查询结果回调，每页20条，分页加载更多时，返回多页数据总和
-+ (instancetype)searchManagerWithCurrentCity:(nullable NSString *)currentCity
++ (instancetype)searchManagerWithCurrentCity:(NSString *)currentCity
                                     location:(CLLocation *)location
                                completeBlock:(void(^)(NSArray<DRLocationPOIModel *> *searchResult, BOOL haveMoreData, BOOL success, NSString *message))completeBlock;
+
++ (void)searchReGeocodeWithLocation:(CLLocation *)location
+                      completeBlock:(void(^)(DRLocationModel *locationModel, BOOL success, NSString *message))completeBlock;
 
 /// 开始查询
 - (void)searchWithPlace:(NSString *)place;
@@ -32,5 +33,3 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSDictionary *)errorInfoMapping;
 
 @end
-
-NS_ASSUME_NONNULL_END

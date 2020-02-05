@@ -7,8 +7,6 @@
 
 #import <CoreLocation/CoreLocation.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface DRLocationCoordinateModel : NSObject
 
 ///纬度（垂直方向）
@@ -22,5 +20,3 @@ NS_ASSUME_NONNULL_BEGIN
                         longitude:(CGFloat)longitude;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -450,4 +450,10 @@
     return _routeLines;
 }
 
+#pragma mark - lifecycle
+- (void)dealloc {
+    kDR_LOG(@"%@ dealloc", NSStringFromClass([self class]));
+    _routeSearch.delegate = nil;
+}
+
 @end

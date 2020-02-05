@@ -7,20 +7,17 @@
 //
 
 #import "DRLocationManager.h"
-
 #import <AMapFoundationKit/AMapFoundationKit.h>
 #import <AMapLocationKit/AMapLocationKit.h>
-#import <AMapSearchKit/AMapSearchKit.h>
 #import <MJExtension/MJExtension.h>
 #import <DRMacroDefines/DRMacroDefines.h>
 #import "DRPlaceSearchManager.h"
 
 #define kLocationMessageCacheKey @"LocationMessageCacheKey"
 
-@interface DRLocationManager ()<AMapLocationManagerDelegate, AMapSearchDelegate>
+@interface DRLocationManager ()<AMapLocationManagerDelegate>
 
 @property (nonatomic, strong) AMapLocationManager *locationManager;
-@property (nonatomic, strong) AMapSearchAPI *geoCodeSearch;
 @property (nonatomic, strong) CLHeading *heading;
 @property (nonatomic, strong) DRLocationModel *locationModel;
 @property (assign, nonatomic) CLAuthorizationStatus lastState;
@@ -141,9 +138,6 @@
  *  @param location 定位结果。
  */
 - (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location {
-    DRLocationModel *locationModel = [DRLocationModel new];
-    locationModel.location = location;
-    
     if (!self.locationManager.allowsBackgroundLocationUpdates) {
         if (location.horizontalAccuracy > 0 && location.horizontalAccuracy < 100) {
             [self.locationManager stopUpdatingLocation];
@@ -152,12 +146,21 @@
     
     if (self.locationOnly) {
         if ([self.delegate respondsToSelector:@selector(onUpdateLocationDone:location:)]) {
+            DRLocationModel *locationModel = [DRLocationModel new];
+            locationModel.location = location;
             [self.delegate onUpdateLocationDone:self
                                        location:locationModel];
         }
     } else {
-        self.locationModel = locationModel;
-        [self sendReverseGeoCodeSearchRequest];
+        kDRWeakSelf
+        [DRPlaceSearchManager searchReGeocodeWithLocation:location completeBlock:^(DRLocationModel *locationModel, BOOL success, NSString *message) {
+            if (success) {
+                weakSelf.locationModel = locationModel;
+                [weakSelf cacheLocationModel];
+            } else {
+                kDR_LOG(@"逆地址编码失败，未获取到定位点位置和POI信息：%@", message);
+            }
+        }];
     }
 }
 
@@ -202,64 +205,7 @@
     self.lastState = status;
 }
 
-#pragma mark - AMapSearchDelegate
-/**
- * @brief 当请求发生错误时，会调用代理的此方法.
- * @param request 发生错误的请求.
- * @param error   返回的错误.
- */
-- (void)AMapSearchRequest:(id)request didFailWithError:(NSError *)error {
-    if ([self.delegate respondsToSelector:@selector(onUpdateLocationDone:location:)]) {
-        [self.delegate onUpdateLocationDone:self
-                                   location:self.locationModel];
-    }
-    kDR_LOG(@"逆地址编码失败，未获取到定位点位置和POI信息：%@", [DRPlaceSearchManager errorInfoMapping][@(error.code)]);
-}
-
-/**
- * @brief 逆地理编码查询回调函数
- * @param request  发起的请求，具体字段参考 AMapReGeocodeSearchRequest 。
- * @param response 响应结果，具体字段参考 AMapReGeocodeSearchResponse 。
- */
-- (void)onReGeocodeSearchDone:(AMapReGeocodeSearchRequest *)request response:(AMapReGeocodeSearchResponse *)response {
-    if (response != nil) {
-        NSMutableArray *poiList = [NSMutableArray array];
-        for (AMapPOI *poi in response.regeocode.pois) {
-            [poiList addObject:[DRLocationPOIModel modelWithAMapPOIModel:poi
-                                                                 country:response.regeocode.addressComponent.country]];
-        }
-        self.locationModel.country = response.regeocode.addressComponent.country;
-        self.locationModel.province = response.regeocode.addressComponent.province;
-        self.locationModel.city = response.regeocode.addressComponent.city;
-        self.locationModel.area = response.regeocode.addressComponent.district;
-        self.locationModel.street = response.regeocode.addressComponent.township;
-        self.locationModel.address = response.regeocode.formattedAddress;
-        self.locationModel.poiList = poiList;
-        [self cacheLocationModel];
-    }
-    if ([self.delegate respondsToSelector:@selector(onUpdateLocationDone:location:)]) {
-        [self.delegate onUpdateLocationDone:self
-                                   location:self.locationModel];
-    }
-}
-
 #pragma mark - private
-- (void)sendReverseGeoCodeSearchRequest {
-    CLLocationCoordinate2D coordinate = self.locationModel.location.coordinate;
-    AMapReGeocodeSearchRequest *request = [[AMapReGeocodeSearchRequest alloc] init];
-    request.location = [AMapGeoPoint locationWithLatitude:coordinate.latitude longitude:coordinate.longitude];
-    request.poitype = @"010000|020000|030000|040000|050000|060000|070000|080000|090000|100000|110000|120000|130000|140000|150000|160000|170000|180000|190000|200000|220000|970000|990000";
-    
-    [self.geoCodeSearch AMapReGoecodeSearch:request];
-}
-
-- (void)dealloc {
-    [_locationManager stopUpdatingHeading];
-    [_locationManager stopUpdatingLocation];
-    _locationManager.delegate = nil;
-    _locationManager = nil;
-}
-
 // save location message
 - (void)cacheLocationModel {
     NSMutableDictionary *dic = [self.locationModel mj_keyValuesWithKeys:@[@"country", @"province", @"city",
@@ -278,12 +224,13 @@
     return _locationManager;
 }
 
-- (AMapSearchAPI *)geoCodeSearch {
-    if (!_geoCodeSearch) {
-        _geoCodeSearch = [[AMapSearchAPI alloc] init];
-        _geoCodeSearch.delegate = self;
-    }
-    return _geoCodeSearch;
+#pragma mark - lifecycle
+- (void)dealloc {
+    [_locationManager stopUpdatingHeading];
+    [_locationManager stopUpdatingLocation];
+    _locationManager.delegate = nil;
+    _locationManager = nil;
+    kDR_LOG(@"%@ dealloc", NSStringFromClass([self class]));
 }
 
 @end
