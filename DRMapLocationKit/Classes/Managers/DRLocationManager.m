@@ -145,17 +145,17 @@
     }
     
     if (self.locationOnly) {
-        if ([self.delegate respondsToSelector:@selector(onUpdateLocationDone:location:)]) {
-            DRLocationModel *locationModel = [DRLocationModel new];
-            locationModel.location = location;
-            [self.delegate onUpdateLocationDone:self
-                                       location:locationModel];
-        }
+        DRLocationModel *locationModel = [DRLocationModel new];
+        locationModel.location = location;
+        [self.delegate onUpdateLocationDone:self
+                                   location:locationModel];
     } else {
         kDRWeakSelf
         [DRPlaceSearchManager searchReGeocodeWithLocation:location completeBlock:^(DRLocationModel *locationModel, BOOL success, NSString *message) {
             if (success) {
                 weakSelf.locationModel = locationModel;
+                [self.delegate onUpdateLocationDone:self
+                                           location:locationModel];
                 [weakSelf cacheLocationModel];
             } else {
                 kDR_LOG(@"逆地址编码失败，未获取到定位点位置和POI信息：%@", message);
