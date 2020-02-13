@@ -153,7 +153,7 @@ typedef void (^DRRoutePlanSearchDoneBlock)(BOOL success,
              forType:(DRPointAnnotationType)annotationType;
 
 /// 设置路径线条宽度
-/// @param lineWidth 线条宽度，默认3pt
+/// @param lineWidth 线条宽度，默认8pt
 /// @param annotationType 线段类型
 - (void)setLineWidth:(CGFloat)lineWidth
              forType:(DRPointAnnotationType)annotationType;

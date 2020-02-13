@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'DRMapLocationKit'
-  s.version          = '0.1.5'
+  s.version          = '0.1.6'
   s.summary          = 'A short description of DRMapLocationKit.'
 
 # This description is used to generate tags and improve search results.
@@ -56,6 +56,5 @@ TODO: Add long description of the pod here.
   s.dependency 'AMapLocation'
   s.dependency 'MJExtension'
   s.dependency 'DRMacroDefines'
-  s.dependency 'HexColors', '4.0.0'
   
 end

@@ -9,7 +9,6 @@
 #import "DRRoutePlanManager.h"
 #import <AMapSearchKit/AMapSearchKit.h>
 #import <DRMacroDefines/DRMacroDefines.h>
-#import <HexColors/HexColors.h>
 #import "DRPlaceSearchManager.h"
 
 #pragma mark - DRPointAnnotation
@@ -485,7 +484,7 @@
 - (void)makePathStepsRouteNaviWithAnnotations:(NSMutableArray *)annotations
                                     polyLines:(NSMutableArray *)polylines {
     // 为drive类型且需要显示路况
-    if (self.showTrafficState && self.routePlanType == DRRoutePlanTypeDrive) {
+    if (self.showTrafficState && (self.routePlanType == DRRoutePlanTypeDrive || self.routePlanType == DRRoutePlanTypeTruck)) {
         DRMultiPolyline *polyline = [self multiColoredPolylineWithPolylineColors];
         if (polyline) {
             [polylines addObject:polyline];
@@ -494,13 +493,6 @@
         [self.steps enumerateObjectsUsingBlock:^(AMapStep *step, NSUInteger idx, BOOL *stop) {
             DRPolyline *stepPolyline = [self polylineForStep:step];
             if (stepPolyline != nil) {
-                if (self.routePlanType == DRRoutePlanTypeWalk) {
-                    stepPolyline.lineType = DRPointAnnotationTypeWalking;
-                } else if (self.routePlanType == DRRoutePlanTypeBike) {
-                    stepPolyline.lineType = DRPointAnnotationTypeRiding;
-                } else {
-                    stepPolyline.lineType = DRPointAnnotationTypeDrive;
-                }
                 [polylines addObject:stepPolyline];
                 
                 if (idx > 0) {
@@ -593,7 +585,7 @@
     
     DRMultiPolyline *polyline = [DRMultiPolyline polylineWithCoordinates:runningCoords count:count drawStyleIndexes:indexes];
     polyline.routePlanType = self.routePlanType;
-    polyline.routePlanType = DRPointAnnotationTypeDrive;
+    polyline.lineType = DRPointAnnotationTypeDrive;
     polyline.multiPolylineColors = mutablePolylineColors;
     
     free(runningCoords);
@@ -768,13 +760,13 @@
         self.pointImpageMap[@(DRPointAnnotationTypeRiding)] = [self imageWithName:@"icon_point_ride"];
         
         self.lineColorMap = [NSMutableDictionary dictionary];
-        self.lineColorMap[@(DRPointAnnotationTypeDrive)] = [UIColor hx_colorWithHexRGBAString:@"#0CB92D"];
-        self.lineColorMap[@(DRPointAnnotationTypeWalking)] = [UIColor hx_colorWithHexRGBAString:@"#2998FB"];
-        self.lineColorMap[@(DRPointAnnotationTypeBus)] = [UIColor hx_colorWithHexRGBAString:@"#F39758"];
-        self.lineColorMap[@(DRPointAnnotationTypeRailway)] = [UIColor hx_colorWithHexRGBAString:@"#FF5475"];
-        self.lineColorMap[@(DRPointAnnotationTypeRiding)] = [UIColor hx_colorWithHexRGBAString:@"#2998FB"];
+        self.lineColorMap[@(DRPointAnnotationTypeDrive)] = [UIColor blueColor];
+        self.lineColorMap[@(DRPointAnnotationTypeWalking)] = [UIColor blueColor];
+        self.lineColorMap[@(DRPointAnnotationTypeBus)] = [UIColor blueColor];
+        self.lineColorMap[@(DRPointAnnotationTypeRailway)] = [UIColor blueColor];
+        self.lineColorMap[@(DRPointAnnotationTypeRiding)] = [UIColor blueColor];
         
-        NSDecimalNumber *lineWidth = [NSDecimalNumber decimalNumberWithString:@"3"];
+        NSDecimalNumber *lineWidth = [NSDecimalNumber decimalNumberWithString:@"8"];
         self.lineWidthMap = [NSMutableDictionary dictionary];
         self.lineWidthMap[@(DRPointAnnotationTypeDrive)] = lineWidth;
         self.lineWidthMap[@(DRPointAnnotationTypeWalking)] = lineWidth;
@@ -933,9 +925,7 @@
         DRMultiPolyline *polyLine = (DRMultiPolyline *)overlay;
         MAMultiColoredPolylineRenderer * polylineRenderer = [[MAMultiColoredPolylineRenderer alloc] initWithMultiPolyline:polyLine];
         polylineRenderer.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;;
-        polylineRenderer.strokeColors = [polyLine.multiPolylineColors copy];
-        polylineRenderer.gradient = YES;
-        
+        polylineRenderer.strokeColors = polyLine.multiPolylineColors;
         return polylineRenderer;
     }
     return nil;
