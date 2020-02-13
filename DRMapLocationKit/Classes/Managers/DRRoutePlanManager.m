@@ -34,8 +34,6 @@
 @property (assign, nonatomic) DRPointAnnotationType lineType;
 /// 是否用虚线绘制
 @property (assign, nonatomic) BOOL isDashLine;
-///路况状态描述：0 未知，1 畅通，2 缓行，3 拥堵，4 严重拥堵
-@property (assign, nonatomic) NSInteger status;
 
 @end
 
@@ -43,6 +41,13 @@
 @end
 
 @interface DRMultiPolyline : MAMultiPolyline
+
+/// 路径规划类型
+@property (nonatomic, assign) DRRoutePlanType routePlanType;
+/// 该路段的交通方式
+@property (assign, nonatomic) DRPointAnnotationType lineType;
+/// 多彩线颜色
+@property (nonatomic, strong) NSArray<UIColor *> *multiPolylineColors;
 
 @end
 
@@ -108,8 +113,6 @@
 @property (strong, nonatomic) NSArray<DRPointAnnotation *> *annotations;
 /// 路径折线集合
 @property (strong, nonatomic) NSArray<DRPolyline *> *polyLines;
-/// 多彩线颜色
-@property (nonatomic, strong) NSArray<UIColor *> *multiPolylineColors;
 /// 普通路段颜色，设置showTrafficState为YES才有效
 @property (strong, nonatomic) UIColor *normalrouteColor;
 /// 拥堵路段颜色，设置showTrafficState为YES才有效
@@ -126,7 +129,7 @@
 
 /// 解析路径
 - (void)getRouteLinesPointsWithCoplete:(void(^)(NSArray<DRPointAnnotation *> *annotations, NSArray<DRPolyline *> *polyLines))complete {
-    if (self.segments.count == 0) {
+    if (self.segments.count == 0 && self.steps.count == 0) {
         kDR_SAFE_BLOCK(complete, @[], @[]);
         return;
     }
@@ -364,6 +367,7 @@
     coordinates[1] = CLLocationCoordinate2DMake(taxi.destination.latitude, taxi.destination.longitude);
     
     DRPolyline *polyline = [DRPolyline polylineWithCoordinates:coordinates count:2];
+    polyline.routePlanType = self.routePlanType;
     polyline.lineType = DRPointAnnotationTypeBus;
     [polylines addObject:polyline];
 }
@@ -388,6 +392,7 @@
         coordinates[1] = CLLocationCoordinate2DMake(nextStation.location.latitude, nextStation.location.longitude);
         
         DRPolyline *polyline = [DRPolyline polylineWithCoordinates:coordinates count:2];
+        polyline.routePlanType = self.routePlanType;
         polyline.lineType = DRPointAnnotationTypeRailway;
         [polylines addObject:polyline];
         
@@ -462,6 +467,8 @@
         points[0] = startCoor;
         points[1] = endCoor;
         dashPolyline = [DRPolyline polylineWithCoordinates:points count:2];
+        dashPolyline.routePlanType = self.routePlanType;
+        dashPolyline.lineType = [self defaultPointType];
     }
     dashPolyline.isDashLine = YES;
     return dashPolyline;
@@ -474,18 +481,14 @@
     return [self polylineForCoordinateString:step.polyline];
 }
 
-
-
 #pragma mark - 除公交以外的路径解析
 - (void)makePathStepsRouteNaviWithAnnotations:(NSMutableArray *)annotations
                                     polyLines:(NSMutableArray *)polylines {
     // 为drive类型且需要显示路况
     if (self.showTrafficState && self.routePlanType == DRRoutePlanTypeDrive) {
-        NSArray *polylineColors = nil;
-        DRMultiPolyline *polyline = [self multiColoredPolylineWithPolylineColors:&polylineColors];
+        DRMultiPolyline *polyline = [self multiColoredPolylineWithPolylineColors];
         if (polyline) {
             [polylines addObject:polyline];
-            self.multiPolylineColors = polylineColors;
         }
     } else {
         [self.steps enumerateObjectsUsingBlock:^(AMapStep *step, NSUInteger idx, BOOL *stop) {
@@ -518,7 +521,7 @@
     [self replenishPolylinesForStartPoint:self.origin endPoint:self.destination polylines:polylines];
 }
 
-- (DRMultiPolyline *)multiColoredPolylineWithPolylineColors:(NSArray **)polylineColors {
+- (DRMultiPolyline *)multiColoredPolylineWithPolylineColors {
     NSMutableArray *mutablePolylineColors = [NSMutableArray array];
     NSMutableArray *coordinates = [NSMutableArray array];
     NSMutableArray *indexes = [NSMutableArray array];
@@ -589,12 +592,11 @@
     }
     
     DRMultiPolyline *polyline = [DRMultiPolyline polylineWithCoordinates:runningCoords count:count drawStyleIndexes:indexes];
+    polyline.routePlanType = self.routePlanType;
+    polyline.routePlanType = DRPointAnnotationTypeDrive;
+    polyline.multiPolylineColors = mutablePolylineColors;
     
     free(runningCoords);
-    
-    if (polylineColors) {
-        *polylineColors = [mutablePolylineColors copy];
-    }
     return polyline;
 }
 
@@ -664,6 +666,7 @@
                                                           parseToken:@";"];
     DRPolyline *polyline = [DRPolyline polylineWithCoordinates:coordinates count:count];
     polyline.routePlanType = self.routePlanType;
+    polyline.lineType = [self defaultPointType];
     (void)(free(coordinates)), coordinates = NULL;
     return polyline;
 }
@@ -708,6 +711,19 @@
         };
     }
     return _colorMapping;
+}
+
+- (DRPointAnnotationType)defaultPointType {
+    if (self.routePlanType == DRRoutePlanTypeWalk) {
+        return DRPointAnnotationTypeWalking;
+    }
+    if (self.routePlanType == DRRoutePlanTypeBike) {
+        return DRPointAnnotationTypeRiding;
+    }
+    if (self.routePlanType == DRRoutePlanTypePublicTransit) {
+        return DRPointAnnotationTypeBus;
+    }
+    return DRPointAnnotationTypeDrive;
 }
 
 @end
@@ -907,21 +923,19 @@
         DRPolyline *polyLine = (DRPolyline *)overlay;
         MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithOverlay:polyLine];
         polylineRenderer.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;
-        if (self.showTrafficState) { // 显示路况
-            if (polyLine.status == 2) { // 缓行
-                polylineRenderer.fillColor = self.slowRouteColor;
-                polylineRenderer.strokeColor = self.slowRouteColor;
-            } else if (polyLine.status > 2) { // 拥堵
-                polylineRenderer.fillColor = self.jamRouteColor;
-                polylineRenderer.strokeColor = self.jamRouteColor;
-            }
-            return polylineRenderer;
-        }
         polylineRenderer.fillColor = self.lineColorMap[@(polyLine.lineType)];
         polylineRenderer.strokeColor = self.lineColorMap[@(polyLine.lineType)];
         if (polyLine.isDashLine) {
             polylineRenderer.lineDashType = kMALineDashTypeDot;
         }
+        return polylineRenderer;
+    } else if ([overlay isKindOfClass:[DRMultiPolyline class]]) {
+        DRMultiPolyline *polyLine = (DRMultiPolyline *)overlay;
+        MAMultiColoredPolylineRenderer * polylineRenderer = [[MAMultiColoredPolylineRenderer alloc] initWithMultiPolyline:polyLine];
+        polylineRenderer.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;;
+        polylineRenderer.strokeColors = [polyLine.multiPolylineColors copy];
+        polylineRenderer.gradient = YES;
+        
         return polylineRenderer;
     }
     return nil;
@@ -1014,15 +1028,18 @@
     [self.mapView removeAnnotations:self.annotations];
     [self.annotations removeAllObjects];
     
-    [self.annotations addObjectsFromArray:[courseModel annotations]];
-    [self.mapView addAnnotations:self.annotations];
-    
-    [self.routeLines addObjectsFromArray:[courseModel polyLines]];
-    [self.mapView addOverlays:self.routeLines];
-    
-    [self.mapView showOverlays:self.routeLines
-                   edgePadding:self.routeLineEdgeInsets
-                      animated:YES];
+    kDRWeakSelf
+    [courseModel getRouteLinesPointsWithCoplete:^(NSArray<DRPointAnnotation *> *annotations, NSArray<DRPolyline *> *polyLines) {
+        [weakSelf.annotations addObjectsFromArray:annotations];
+        [weakSelf.mapView addAnnotations:weakSelf.annotations];
+        
+        [weakSelf.routeLines addObjectsFromArray:polyLines];
+        [weakSelf.mapView addOverlays:weakSelf.routeLines];
+        
+        [weakSelf.mapView showOverlays:weakSelf.routeLines
+                           edgePadding:weakSelf.routeLineEdgeInsets
+                              animated:YES];
+    }];
 }
 
 /// 增加显示一条可选路径，不会清除之前添加的路径
