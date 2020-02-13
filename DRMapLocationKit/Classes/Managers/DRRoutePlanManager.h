@@ -13,9 +13,13 @@
 @class DRPointAnnotation;
 @class DRPolyline;
 @class DRRouteCourseModel;
-typedef NS_ENUM(NSInteger, DRRoutePlanPointType) {
-    DRRoutePlanPointTypeStart,
-    DRRoutePlanPointTypeEnd
+typedef NS_ENUM(NSInteger, DRPointAnnotationType) {
+    DRPointAnnotationTypeNone,
+    DRPointAnnotationTypeDrive,
+    DRPointAnnotationTypeWalking,
+    DRPointAnnotationTypeBus,
+    DRPointAnnotationTypeRailway,
+    DRPointAnnotationTypeRiding
 };
 
 typedef NS_ENUM(NSInteger, DRRoutePlanType) {
@@ -38,11 +42,6 @@ typedef void (^DRRoutePlanSearchDoneBlock)(BOOL success,
                                            NSArray<DRRouteCourseModel *> *courseList    // 本次规划结果的多条路径，默认已经把第一条绘制在了地图上
                                            );
 
-typedef struct {
-    NSString *title;
-    UIImage *image;
-} DRRouteStartEndInfo;
-
 
 #pragma mark - DRRouteStrategyModel
 @interface DRRouteStrategyModel : NSObject
@@ -59,11 +58,13 @@ typedef struct {
 
 @interface DRRouteCourseModel : NSObject
 
+/// 路径规划类型
+@property (assign, nonatomic) DRRoutePlanType routePlanType;
 /// 当前方案的总距离
 @property (nonatomic, assign) NSInteger distance;
 /// 当前方案的预计总耗时
-@property (nonatomic, assign) NSDateComponents *totalTime;
-/// 时长描述：xx天xx小时xx分钟
+@property (nonatomic, strong) NSDateComponents *totalTime;
+/// 时长描述：xx天xx小时xx分钟（忽略秒）
 @property (copy, nonatomic) NSString *durationDesc;
 /// 出租车费用（单位：元）
 @property (nonatomic, assign) CGFloat taxiCost;
@@ -87,6 +88,8 @@ typedef struct {
 #pragma mark - 驾车方案独有
 /// 拥堵路段总长度
 @property (assign, nonatomic) NSInteger jamTotalDistance;
+///导航策略
+@property (nonatomic, copy)   NSString  *strategy;
 
 @end
 
@@ -99,10 +102,15 @@ typedef struct {
 @property (assign, nonatomic) UIEdgeInsets routeLineEdgeInsets;
 /// 当前路径规划策略
 @property (strong, nonatomic) DRRouteStrategyModel *currentStrategy;
-/// 拥堵路段颜色
+/// 显示交通状态，拥堵情况，默认YES
+@property (assign, nonatomic) BOOL showTrafficState;
+/// 拥堵路段颜色，设置showTrafficState为YES才有效
 @property (strong, nonatomic) UIColor *jamRouteColor;
-/// 缓行路段颜色
+/// 缓行路段颜色，设置showTrafficState为YES才有效
 @property (strong, nonatomic) UIColor *slowRouteColor;
+/// 开始结束点的标注图标
+@property (strong, nonatomic) UIImage *startPointImage;
+@property (strong, nonatomic) UIImage *endPointImage;
 
 #pragma mark - 必须调用的方法
 /// 创建路径规划类
@@ -140,27 +148,21 @@ typedef struct {
 #pragma mark - 外观定制
 /// 设置路径规划线条颜色
 /// @param lineColor 颜色
-/// @param type 规划类型
+/// @param annotationType 线段类型
 - (void)setLineColor:(UIColor *)lineColor
-             forType:(DRRoutePlanType)type;
+             forType:(DRPointAnnotationType)annotationType;
 
 /// 设置路径线条宽度
 /// @param lineWidth 线条宽度，默认3pt
-/// @param type 规划类型
+/// @param annotationType 线段类型
 - (void)setLineWidth:(CGFloat)lineWidth
-             forType:(DRRoutePlanType)type;
+             forType:(DRPointAnnotationType)annotationType;
 
-/// 设置地图上起点标注标题及图标
-/// @param title 标题
-/// @param image 图标
-- (void)setStartCoordinateTitle:(NSString *)title
-                          image:(UIImage *)image;
-
-/// 设置地图上终点标注标题及图标
-/// @param title 标题
-/// @param image 图标
-- (void)setEndCoordinateTitle:(NSString *)title
-                        image:(UIImage *)image;
+/// 设置标注点图片
+/// @param image 图片
+/// @param annotationType 标注点类型
+- (void)setAnnotationPointImage:(UIImage *)image
+              forAnnotationType:(DRPointAnnotationType)annotationType;
 
 #pragma mark - 方案选择
 /// 获取指定规划类型所支持的路径规划策略列表

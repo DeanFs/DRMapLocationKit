@@ -9,8 +9,8 @@
 
 @implementation DRLocationCoordinateModel
 
-- (instancetype)initWithLatitude:(CGFloat)latitude
-                       longitude:(CGFloat)longitude {
+- (instancetype)initWithLatitude:(double)latitude
+                       longitude:(double)longitude {
     if (self = [super init]) {
         _latitude = latitude;
         _longitude = longitude;
@@ -24,8 +24,8 @@
                                                      longitude:coordinate.longitude];
 }
 
-+ (instancetype)modelWithLatitude:(CGFloat)latitude
-                        longitude:(CGFloat)longitude {
++ (instancetype)modelWithLatitude:(double)latitude
+                        longitude:(double)longitude {
     return [[DRLocationCoordinateModel alloc] initWithLatitude:latitude
                                                      longitude:longitude];
 }
