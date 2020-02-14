@@ -926,6 +926,9 @@
         MAMultiColoredPolylineRenderer * polylineRenderer = [[MAMultiColoredPolylineRenderer alloc] initWithMultiPolyline:polyLine];
         polylineRenderer.lineWidth = self.lineWidthMap[@(polyLine.lineType)].floatValue;;
         polylineRenderer.strokeColors = polyLine.multiPolylineColors;
+        polylineRenderer.gradient = YES;
+        polylineRenderer.lineJoinType = kMALineJoinMiter;
+        polylineRenderer.lineCapType = kMALineCapSquare;
         return polylineRenderer;
     }
     return nil;

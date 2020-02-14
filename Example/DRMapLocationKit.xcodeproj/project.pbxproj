@@ -357,15 +357,13 @@
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_railway_station@2x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_railway_station@3x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_ride@2x.png",
-				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_ride@2x的副本.png",
+				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_ride@3x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_walk@2x.png",
-				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_walk@2x的副本.png",
+				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_point_walk@3x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_route_plan_end@2x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_route_plan_end@3x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_route_plan_start@2x.png",
 				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_route_plan_start@3x.png",
-				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_user_location@2x.png",
-				"${PODS_ROOT}/../../DRMapLocationKit/Assets/icon_user_location@3x.png",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -377,15 +375,13 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_railway_station@2x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_railway_station@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_ride@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_ride@2x的副本.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_ride@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_walk@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_walk@2x的副本.png",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_point_walk@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_route_plan_end@2x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_route_plan_end@3x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_route_plan_start@2x.png",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_route_plan_start@3x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_user_location@2x.png",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icon_user_location@3x.png",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
