@@ -120,6 +120,18 @@
     self.locationManager.desiredAccuracy = desiredAccuracy;
 }
 
+- (void)setPausesLocationUpdatesAutomatically:(BOOL)pausesLocationUpdatesAutomatically {
+    self.locationManager.pausesLocationUpdatesAutomatically = pausesLocationUpdatesAutomatically;
+}
+
+- (void)setAllowsBackgroundLocationUpdates:(BOOL)allowsBackgroundLocationUpdates {
+    self.locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+}
+
+- (void)setLocationTimeout:(NSInteger)locationTimeout {
+    self.locationManager.locationTimeout = locationTimeout;
+}
+
 #pragma mark - AMapLocationManagerDelegate
 /**
  *  @brief 当plist配置NSLocationAlwaysUsageDescription或者NSLocationAlwaysAndWhenInUseUsageDescription，并且[CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined，会调用代理的此方法。

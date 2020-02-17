@@ -13,6 +13,7 @@
 #import "DRLocationManager.h"
 #import "DRPlaceSearchManager.h"
 #import "DRRoutePlanManager.h"
+#import "DRSmoothPathTool.h"
 
 @interface DRMapLoctionKit : NSObject
 

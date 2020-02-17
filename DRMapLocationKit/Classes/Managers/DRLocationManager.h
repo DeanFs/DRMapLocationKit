@@ -58,6 +58,15 @@
 /// 连续定位时，移动指定距离重新触发定位
 @property (assign, nonatomic) CLLocationDistance distanceFilter;
 
+/// 允许后台持续定位
+@property (assign, nonatomic) BOOL allowsBackgroundLocationUpdates;
+
+///指定定位是否会被系统自动暂停
+@property (nonatomic) BOOL pausesLocationUpdatesAutomatically;
+
+///指定单次定位超时时间,默认为10s。最小值是2s。注意单次定位请求前设置。注意: 单次定位超时时间从确定了定位权限(非kCLAuthorizationStatusNotDetermined状态)后开始计算。
+@property(nonatomic, assign) NSInteger locationTimeout;
+
 /**
  创建定位管理器
  
