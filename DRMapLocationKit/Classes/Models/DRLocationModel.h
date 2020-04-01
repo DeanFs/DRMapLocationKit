@@ -20,6 +20,7 @@
 @property (nonatomic, copy) NSString *address;
 @property (copy, nonatomic) NSString *lng;
 @property (copy, nonatomic) NSString *lat;
+@property (nonatomic, copy) NSString *adcode;
 @property (strong, nonatomic) CLLocation *location;
 @property (nonatomic, strong) NSArray<DRLocationPOIModel *> *poiList;
 

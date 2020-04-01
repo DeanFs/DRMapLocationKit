@@ -7,22 +7,22 @@ PODS:
   - AMapSearch (7.1.0):
     - AMapFoundation (~> 1.4)
   - DRMacroDefines (0.1.2)
-  - DRMapLocationKit (0.1.9):
+  - DRMapLocationKit (0.2.0):
     - AMap3DMap
     - AMapLocation
     - AMapSearch
     - DRMacroDefines
-    - DRMapLocationKit/Managers (= 0.1.9)
-    - DRMapLocationKit/Models (= 0.1.9)
+    - DRMapLocationKit/Managers (= 0.2.0)
+    - DRMapLocationKit/Models (= 0.2.0)
     - MJExtension
-  - DRMapLocationKit/Managers (0.1.9):
+  - DRMapLocationKit/Managers (0.2.0):
     - AMap3DMap
     - AMapLocation
     - AMapSearch
     - DRMacroDefines
     - DRMapLocationKit/Models
     - MJExtension
-  - DRMapLocationKit/Models (0.1.9):
+  - DRMapLocationKit/Models (0.2.0):
     - AMap3DMap
     - AMapLocation
     - AMapSearch
@@ -52,7 +52,7 @@ SPEC CHECKSUMS:
   AMapLocation: b4162db67f813508a14ee7e05c7ee4073785221d
   AMapSearch: 6bd6d361c5eb00110e0bffa4acf88b7bb9f7e059
   DRMacroDefines: 58aa271bc1c4170fa09f4f33dcad18fc4f21a57e
-  DRMapLocationKit: fb48bce5b07063706d0d1e8cba2520bfc4567339
+  DRMapLocationKit: c8f067e0bba8111f50ec20d2eaac43cfc33bb33d
   MJExtension: 635f2c663dcb1bf76fa4b715b2570a5710aec545
 
 PODFILE CHECKSUM: 1f6c035d0c9141bdbd724770a45b2030dcd89cda

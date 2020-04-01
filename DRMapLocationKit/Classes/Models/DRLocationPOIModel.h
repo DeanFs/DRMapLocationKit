@@ -31,6 +31,8 @@
 @property (nonatomic, copy) NSString *address;
 /// 距离坐标点距离，注：此字段只对逆地理检索有效
 @property (nonatomic, assign) NSInteger distance;
+///区域编码
+@property (nonatomic, copy) NSString *adcode;
 /// 高德坐标
 @property (strong, nonatomic) DRLocationCoordinateModel *coordinate;
 

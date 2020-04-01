@@ -35,7 +35,6 @@
 + (instancetype)locationManagerWithDelegate:(id<DRLocationManagerDelegate>)delegate {
     DRLocationManager *manager = [DRLocationManager new];
     manager.delegate = delegate;
-    manager.locationManager.delegate = manager;
     return manager;
 }
 
@@ -145,11 +144,12 @@
 }
 
 /**
- *  @brief 连续定位回调函数.注意：本方法已被废弃，如果实现了amapLocationManager:didUpdateLocation:reGeocode:方法，则本方法将不会回调。
+ *  @brief 连续定位回调函数.注意：如果实现了本方法，则定位信息不会通过amapLocationManager:didUpdateLocation:方法回调。
  *  @param manager 定位 AMapLocationManager 类。
  *  @param location 定位结果。
+ *  @param reGeocode 逆地理信息。
  */
-- (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location {
+- (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location reGeocode:(AMapLocationReGeocode *)reGeocode {
     if (!self.locationManager.allowsBackgroundLocationUpdates) {
         if (location.horizontalAccuracy > 0 && location.horizontalAccuracy < 100) {
             [self.locationManager stopUpdatingLocation];
@@ -220,9 +220,16 @@
 #pragma mark - private
 // save location message
 - (void)cacheLocationModel {
-    NSMutableDictionary *dic = [self.locationModel mj_keyValuesWithKeys:@[@"country", @"province", @"city",
-                                                                          @"area", @"street", @"address",
-                                                                          @"lng", @"lat"]];
+    NSArray *keys = @[@"country",
+                      @"province",
+                      @"city",
+                      @"area",
+                      @"street",
+                      @"address",
+                      @"lng",
+                      @"lat",
+                      @"adcode"];
+    NSMutableDictionary *dic = [self.locationModel mj_keyValuesWithKeys:keys];
     [[NSUserDefaults standardUserDefaults] setObject:dic forKey:kLocationMessageCacheKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -232,6 +239,7 @@
     if (!_locationManager) {
         _lastState = [CLLocationManager authorizationStatus];
         _locationManager = [[AMapLocationManager alloc] init];
+        _locationManager.delegate = self;
     }
     return _locationManager;
 }

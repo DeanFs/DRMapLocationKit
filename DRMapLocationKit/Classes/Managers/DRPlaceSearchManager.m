@@ -162,6 +162,7 @@ static DRPlaceSearchManager *static_manager;
         locationModel.area = response.regeocode.addressComponent.district;
         locationModel.street = response.regeocode.addressComponent.township;
         locationModel.address = response.regeocode.formattedAddress;
+        locationModel.adcode = response.regeocode.addressComponent.adcode;
         locationModel.poiList = poiList;
         kDR_SAFE_BLOCK(self.onReGeocodeSearchDoneBlock, locationModel, YES, nil);
     } else {
