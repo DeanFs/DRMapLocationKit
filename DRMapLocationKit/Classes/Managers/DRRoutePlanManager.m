@@ -169,20 +169,20 @@
     NSMutableString *durationDesc = [NSMutableString string];
     _totalTime.second = duration % 60;
     duration /= 60;
-    if (duration > 0) { // 分
-        _totalTime.minute = duration % 60;
+    _totalTime.minute = duration % 60;
+    if (_totalTime.minute > 0) { // 分
         [durationDesc insertString:[NSString stringWithFormat:@"%d分钟", (int)_totalTime.minute]
                            atIndex:0];
         duration /= 60;
     }
-    if (duration > 0) { // 小时
-        _totalTime.hour = duration % 24;
+    _totalTime.hour = duration % 24;
+    if (_totalTime.hour > 0) { // 小时
         [durationDesc insertString:[NSString stringWithFormat:@"%d小时", (int)_totalTime.hour]
                            atIndex:0];
         duration /= 24;
     }
-    if (duration > 0) {
-        _totalTime.day = duration;
+    _totalTime.day = duration;
+    if (_totalTime.day > 0) {
         [durationDesc insertString:[NSString stringWithFormat:@"%d天", (int)_totalTime.day]
                            atIndex:0];
     }
