@@ -151,9 +151,7 @@
  */
 - (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location reGeocode:(AMapLocationReGeocode *)reGeocode {
     if (!self.locationManager.allowsBackgroundLocationUpdates) {
-        if (location.horizontalAccuracy > 0 && location.horizontalAccuracy < 100) {
-            [self.locationManager stopUpdatingLocation];
-        }
+        [self.locationManager stopUpdatingLocation];
     }
     
     if (self.locationOnly) {
